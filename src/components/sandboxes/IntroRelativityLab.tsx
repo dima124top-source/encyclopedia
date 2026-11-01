@@ -11,8 +11,6 @@ import {
   HelpCircle,
   Clock,
   Box,
-  Compass,
-  Sparkles,
 } from 'lucide-react';
 
 interface IntroRelativityLabProps {
@@ -31,8 +29,8 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
   const [audience, setAudience] = useState<AudienceLevel>('school');
 
   // Параметры 3D-песочницы и Тензорного инспектора
-  const [gravityStrength, setGravityStrength] = useState<number>(0.75); // Сила поля (0 = плоский мир Минковского, 1.2 = у горизонта)
-  const [selectedRank, setSelectedRank] = useState<TensorRank>(2); // Выбранный ранг тензора (0..4)
+  const [gravityStrength, setGravityStrength] = useState<number>(0.75);
+  const [selectedRank, setSelectedRank] = useState<TensorRank>(2);
   const [showLightCones, setShowLightCones] = useState<boolean>(true);
   const [showClockWave, setShowClockWave] = useState<boolean>(true);
   const [showFreeFallGeodesic, setShowFreeFallGeodesic] = useState<boolean>(true);
@@ -65,7 +63,7 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
   const clockRatePercent = Math.round(Math.sqrt(Math.max(0.04, 1 - 0.65 * gravityStrength)) * 100);
   const coneTiltDeg = Math.round(gravityStrength * 42);
 
-  // Инициализация 3D-сцены Three.js (Световые конусы, градиент времени и геодезические)
+  // Инициализация 3D-сцены Three.js
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
@@ -88,12 +86,12 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
     controls.enableDamping = true;
     controls.dampingFactor = 0.06;
 
-    // 1. Оси пространства-времени (Горизонталь X — пространство r, Вертикаль Y — время ct)
+    // 1. Оси пространства-времени (X — пространство r, Y — время ct)
     const gridHelper = new THREE.GridHelper(12, 12, 0x334155, 0x1e293b);
     gridHelper.position.y = -2.2;
     scene.add(gridHelper);
 
-    // Источник массы слева (на r = -4.5)
+    // Источник массы слева (на r = -4.8)
     const massColumnGeo = new THREE.CylinderGeometry(0.55, 0.55, 6.5, 32);
     const massColumnMat = new THREE.MeshBasicMaterial({
       color: 0x0ea5e9,
@@ -105,7 +103,7 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
     massColumn.position.set(-4.8, 0.5, 0);
     scene.add(massColumn);
 
-    // 2. Ряд световых конусов вдоль радиуса r (наклоняются к массе при росте гравитации)
+    // 2. Ряд световых конусов вдоль радиуса r
     const conesGroup = new THREE.Group();
     scene.add(conesGroup);
 
@@ -116,7 +114,6 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
       const cGroup = new THREE.Group();
       cGroup.position.set(xPos, -0.5, 0);
 
-      // Верхний конус будущего
       const futureCone = new THREE.Mesh(
         new THREE.ConeGeometry(0.75, 1.4, 24, 1, true),
         new THREE.MeshBasicMaterial({
@@ -129,7 +126,6 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
       futureCone.position.y = 0.7;
       cGroup.add(futureCone);
 
-      // Нижний конус прошлого
       const pastCone = new THREE.Mesh(
         new THREE.ConeGeometry(0.75, 1.4, 24, 1, true),
         new THREE.MeshBasicMaterial({
@@ -147,8 +143,8 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
       lightCones.push({ group: cGroup, xPos });
     });
 
-    // 3. Волна собственного времени часов (показывает отставание часов вблизи массы)
-    const clockCount = 45;
+    // 3. Волна собственного времени часов (жёлтая линия)
+    const clockCount = 50;
     const clockGeo = new THREE.BufferGeometry();
     const clockPositions = new Float32Array(clockCount * 3);
     clockGeo.setAttribute('position', new THREE.BufferAttribute(clockPositions, 3));
@@ -158,7 +154,7 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
     );
     scene.add(clockLine);
 
-    // 4. Мировая линия свободного падения тела (геодезическая в 4D пространстве-времени)
+    // 4. Мировая линия свободного падения тела (зелёная линия)
     const geoCount = 60;
     const geodesicGeo = new THREE.BufferGeometry();
     const geodesicPositions = new Float32Array(geoCount * 3);
@@ -169,9 +165,9 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
     );
     scene.add(geodesicLine);
 
-    // Пробное яблоко / частица, движущаяся вдоль мировой линии
+    // Зелёное яблоко, движущееся вдоль мировой линии
     const appleMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(0.2, 20, 20),
+      new THREE.SphereGeometry(0.22, 20, 20),
       new THREE.MeshBasicMaterial({ color: 0x34d399 })
     );
     scene.add(appleMesh);
@@ -186,7 +182,12 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
       const st = stateRef.current;
       time += 0.018;
 
-      // 1. Наклон световых конусов к источнику массы (чем ближе к x = -4.8, тем сильнее наклон)
+      // ЕДИНАЯ ФАЗА ВРЕМЕНИ (от 0 до 1) И ДЛЯ ЯБЛОКА, И ДЛЯ ЖЁЛТОЙ ВОЛНЫ ЧАСОВ
+      const cycleTau = (time * 0.35) % 1;
+      const totalHeight = 4.8;
+      const baseTimeY = -2.0;
+
+      // 1. Наклон световых конусов к источнику массы
       conesGroup.visible = st.showLightCones;
       lightCones.forEach(({ group, xPos }) => {
         const dist = Math.max(1.2, xPos - -4.8);
@@ -194,42 +195,55 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
         group.rotation.z = Math.min(0.85, tiltAngle);
       });
 
-            // Анимация частицы по мировой линии
-      const cycleTau = (time * 0.35) % 1;
-      const appleY = -2.0 + cycleTau * 4.8;
-      const appleX = Math.max(-4.2, 3.8 - st.gravityStrength * 5.2 * cycleTau * cycleTau);
-      appleMesh.position.set(appleX, appleY, -1.2);
-      
-      // 2. Профиль хода часов (замедление времени g_tt вблизи массы)
+      // 2. Жёлтая волна времени: поднимается строго синхронно с яблоком справа,
+      // а слева у цилиндра массы отстаёт из-за замедления времени g_tt
       clockLine.visible = st.showClockWave;
       const cPos = clockGeo.attributes.position.array as Float32Array;
       for (let i = 0; i < clockCount; i++) {
         const t = i / (clockCount - 1);
         const x = -3.8 + t * 9.2;
-        const dist = Math.max(1.0, x - -4.8);
+        const dist = Math.max(1.05, x - -4.8);
+
+        // Коэффициент течения времени: вдали справа ~ 1.0, у массы слева < 1.0
         const timeDilationFactor = Math.sqrt(
-          Math.max(0.1, 1 - (st.gravityStrength * 0.85) / dist)
+          Math.max(0.12, 1 - (st.gravityStrength * 0.85) / dist)
         );
-        const y = -1.8 + ((time * 1.6) % 4.2) * timeDilationFactor;
+
+        // В точке старта яблока (x = 3.8) высота волны совпадает с высотой яблока!
+        const y = baseTimeY + cycleTau * totalHeight * timeDilationFactor;
         cPos[i * 3] = x;
         cPos[i * 3 + 1] = y;
-        cPos[i * 3 + 2] = 1.4;
+        cPos[i * 3 + 2] = 0; // В одной плоскости с яблоком, чтобы не было параллакса
       }
       clockGeo.attributes.position.needsUpdate = true;
 
-      // 3. Мировая линия свободно падающего тела (искривление траектории во времени к медленным часам)
+      // 3. Мировая линия свободно падающего яблока
       geodesicLine.visible = st.showFreeFallGeodesic;
       appleMesh.visible = st.showFreeFallGeodesic;
       const gPos = geodesicGeo.attributes.position.array as Float32Array;
       for (let i = 0; i < geoCount; i++) {
-        const tau = i / (geoCount - 1); // Собственное время от 0 до 1
-        const yTime = -2.0 + tau * 4.8;
-        const xSpace = 3.8 - st.gravityStrength * 5.2 * tau * tau;
-        gPos[i * 3] = Math.max(-4.2, xSpace);
+        const tau = i / (geoCount - 1);
+        const xSpace = Math.max(-4.2, 3.8 - st.gravityStrength * 5.2 * tau * tau);
+        const dist = Math.max(1.05, xSpace - -4.8);
+        const localDilation = Math.sqrt(
+          Math.max(0.12, 1 - (st.gravityStrength * 0.85) / dist)
+        );
+        const yTime = baseTimeY + tau * totalHeight * localDilation;
+
+        gPos[i * 3] = xSpace;
         gPos[i * 3 + 1] = yTime;
-        gPos[i * 3 + 2] = -1.2;
+        gPos[i * 3 + 2] = 0;
       }
       geodesicGeo.attributes.position.needsUpdate = true;
+
+      // 4. Позиция самого зелёного яблока (лежит точно на пересечении своей траектории и жёлтой волны времени!)
+      const appleX = Math.max(-4.2, 3.8 - st.gravityStrength * 5.2 * cycleTau * cycleTau);
+      const appleDist = Math.max(1.05, appleX - -4.8);
+      const appleDilation = Math.sqrt(
+        Math.max(0.12, 1 - (st.gravityStrength * 0.85) / appleDist)
+      );
+      const appleY = baseTimeY + cycleTau * totalHeight * appleDilation;
+      appleMesh.position.set(appleX, appleY, 0);
 
       renderer.render(scene, camera);
     };
@@ -254,7 +268,6 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
     };
   }, []);
 
-  // Проверка Задачи 2: установить гравитацию на 0 (плоское пространство Минковского) или выбрать Ранг 4
   const isTask2Solved = gravityStrength >= 0.95 && selectedRank === 4;
 
   return (
@@ -400,16 +413,15 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
                       Закон «поворота» мировой линии к медленным часам
                     </div>
                     <p>
-                      В четырёхмерном пространстве-времени любое тело (даже покоящееся на столе
+                      В четырёхмерном пространстве-времени любое тело (даже покоящееся на ветке
                       яблоко) несётся вперёд вдоль оси времени со скоростью света <code className="text-sky-300">c</code>.
                     </p>
                     <p>
                       Посмотрите на <strong>жёлтую волну часов</strong> и{' '}
-                      <strong className="text-emerald-300">зелёную траекторию яблока</strong> в 3D-сцене
-                      справа: поскольку слева у массивного тела время течёт медленнее (сейчас{' '}
+                      <strong className="text-emerald-300">зелёное яблоко</strong> в 3D-сцене
+                      справа: яблоко всегда сидит прямо на жёлтой линии фронта времени! Но поскольку слева у массивного цилиндра время отстаёт (сейчас{' '}
                       <strong className="text-amber-300">{clockRatePercent}%</strong> от далекого космоса),
-                      прямая мировая линия яблока во времени неизбежно загибается в сторону медленных
-                      часов!
+                      наклон фронта времени неизбежно заворачивает траекторию яблока влево к массе!
                     </p>
                   </div>
                 </div>
@@ -598,7 +610,6 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
                 </div>
 
                 <div className="grid grid-cols-4 gap-1.5 font-mono text-xs text-center">
-                  {/* Строка t */}
                   <div className="p-2 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 font-bold">
                     {g_tt.toFixed(2)}
                   </div>
@@ -606,7 +617,6 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
                   <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-600">0</div>
                   <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-600">0</div>
 
-                  {/* Строка r */}
                   <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-600">0</div>
                   <div className="p-2 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-bold">
                     +{g_rr.toFixed(2)}
@@ -614,13 +624,11 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
                   <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-600">0</div>
                   <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-600">0</div>
 
-                  {/* Строка theta */}
                   <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-600">0</div>
                   <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-600">0</div>
                   <div className="p-2 rounded-lg bg-sky-500/10 border border-sky-500/30 text-sky-300">r²</div>
                   <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-600">0</div>
 
-                  {/* Строка phi */}
                   <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-600">0</div>
                   <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-600">0</div>
                   <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-600">0</div>
