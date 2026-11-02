@@ -14,9 +14,9 @@ import {
 } from 'lucide-react';
 
 // Ленивая подгрузка модулей лекций
-const IntroRelativityLab = lazy(() => import('./components/sandboxes/IntroRelativityLab'));
-const SchwarzschildLab = lazy(() => import('./components/sandboxes/SchwarzschildLab'));
-const KerrJetsLab = lazy(() => import('./components/sandboxes/KerrJetsLabPage'));
+const IntroRelativityLab = lazy(() => import('./data/physics/00/IntroRelativityLab'));
+const SchwarzschildLab = lazy(() => import('./data/physics/01/SchwarzschildLab'));
+const KerrJetsLab = lazy(() => import('./data/physics/02/KerrJetsLabPage'));
 
 // ==========================================
 // 1. ОПРЕДЕЛЕНИЕ ТИПОВ (TypeScript Interfaces)

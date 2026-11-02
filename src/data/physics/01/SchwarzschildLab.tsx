@@ -23,7 +23,7 @@ import {
   type TheoryChapterId,
   type AudienceLevel,
   type FormulaPartId,
-} from '../../data/topics/schwarzschildContent';
+} from './schwarzschildContent';
 
 interface SchwarzschildLabProps {
   onBack: () => void;
