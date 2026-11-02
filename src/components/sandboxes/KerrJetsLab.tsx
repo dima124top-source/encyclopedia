@@ -715,6 +715,56 @@ export default function KerrJetsLab({ onBack }: KerrJetsLabProps) {
           {/* ВКЛАДКА 2: УПРАВЛЕНИЕ 3D-ПЕСОЧНИЦЕЙ */}
           {activeTab === 'controls' && (
             <div className="space-y-4">
+              {/* ЖИВОЕ ТАБЛО ФОРМУЛ (Метрика Керра, Горизонт r_+ и Мощность джета Блэндфорда — Знаека) */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-indigo-500/30 space-y-3 shadow-inner">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-indigo-400 font-semibold">
+                    Живые уравнения Керра — Знаека
+                  </span>
+                  <span className="text-[11px] font-mono text-slate-400">
+                    a* = {spinA.toFixed(2)} · B = {(magneticFieldB * 100).toFixed(0)}%
+                  </span>
+                </div>
+
+                {/* 1. Формула радиуса горизонта Керра r_+ */}
+                <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 font-mono text-xs space-y-1">
+                  <div className="text-[10px] text-slate-400">
+                    1. Сжатие горизонта событий вращением r_+ = ½ r_s · (1 + √(1 - a*²)):
+                  </div>
+                  <div className="text-slate-200">
+                    r_+ = 0.5 · (1 + √(1 - <span className="text-indigo-400">{spinA.toFixed(2)}²</span>
+                    )) = <strong className="text-sky-300">{rPlusVal.toFixed(2)} r_s</strong>
+                  </div>
+                </div>
+
+                {/* 2. Недиагональная компонента увлечения пространства g_tφ */}
+                <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 font-mono text-xs space-y-1">
+                  <div className="text-[10px] text-slate-400">
+                    2. Увлечение пространства (член Лензе — Тирринга g_tφ ∝ -a*):
+                  </div>
+                  <div className="text-indigo-300">
+                    g_tφ = -r_s · a* / r ⇒{' '}
+                    <strong>
+                      {spinA === 0
+                        ? '0.00 (Пространство не вращается)'
+                        : `-${(spinA * 0.85).toFixed(2)} (Вихрь эргосферы активен)`}
+                    </strong>
+                  </div>
+                </div>
+
+                {/* 3. Формула мощности релятивистского джета Блэндфорда — Знаека */}
+                <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 font-mono text-xs space-y-1">
+                  <div className="text-[10px] text-slate-400">
+                    3. Мощность магнитного джета P_BZ = k · a*² · B²:
+                  </div>
+                  <div className="text-slate-200">
+                    P_BZ = {madState ? '1.25 (MAD) × ' : '1.00 × '}
+                    (<span className="text-indigo-400">{spinA.toFixed(2)}</span>)² × (
+                    <span className="text-sky-400">{magneticFieldB.toFixed(2)}</span>)² ={' '}
+                    <strong className="text-emerald-400">{jetPowerVal}%</strong>
+                  </div>
+                </div>
+              </div>
               {/* Ползунок 1: Спин Керра a* */}
               <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-2.5">
                 <div className="flex justify-between text-xs">

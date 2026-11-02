@@ -320,6 +320,7 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
               activeTab === 'controls'
                 ? 'bg-emerald-500 text-slate-950 font-semibold shadow-sm'
                 : 'text-slate-400 hover:text-slate-200'
+                
             }`}
           >
             <Sliders className="w-3.5 h-3.5" />
@@ -577,8 +578,53 @@ export default function IntroRelativityLab({ onBack }: IntroRelativityLabProps) 
           )}
 
           {/* ВКЛАДКА 2: ИНСПЕКТОР ТЕНЗОРОВ И УРАВНЕНИЯ ЭЙНШТЕЙНА */}
+{/* ВКЛАДКА 2: ИНСПЕКТОР ТЕНЗОРОВ И УРАВНЕНИЯ ЭЙНШТЕЙНА */}
           {activeTab === 'controls' && (
             <div className="space-y-4">
+              {/* --- НАЧАЛО НОВОГО БЛОКА: ЖИВОЕ ТАБЛО ФОРМУЛ --- */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-emerald-500/30 space-y-3 shadow-inner">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-400 font-semibold">
+                    Живая математика ползунка
+                  </span>
+                  <span className="text-[11px] font-mono text-slate-400">
+                    Поле Φ = {(gravityStrength * 100).toFixed(0)}%
+                  </span>
+                </div>
+
+                {/* 1. 4D-интервал с подставленными числами */}
+                <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 font-mono text-xs space-y-1">
+                  <div className="text-[10px] text-slate-400">1. Уравнение 4D-интервала (ds²):</div>
+                  <div className="text-slate-300">
+                    ds² = <span className="text-amber-300 font-bold">g_tt</span>·c²dt² +{' '}
+                    <span className="text-emerald-300 font-bold">g_rr</span>·dr² + r²dΩ²
+                  </div>
+                  <div className="text-sky-300 pt-1 border-t border-slate-800/80">
+                    ds² = (<span className="text-amber-400 font-bold">{g_tt.toFixed(2)}</span>)c²dt² + (
+                    <span className="text-emerald-400 font-bold">+{g_rr.toFixed(2)}</span>)dr² + r²dΩ²
+                  </div>
+                </div>
+
+                {/* 2. Темп собственных часов и ускорение свободного падения */}
+                <div className="grid grid-cols-2 gap-2 font-mono text-xs">
+                  <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+                    <div className="text-[10px] text-slate-400">2. Темп часов dτ = √(-g_tt)dt:</div>
+                    <div className="text-amber-300 font-bold mt-0.5">
+                      dτ = √({Math.abs(g_tt).toFixed(2)}) = {(clockRatePercent / 100).toFixed(2)} dt
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+                    <div className="text-[10px] text-slate-400">3. Тяжесть Γ^r_00 ≈ -½∂g_tt:</div>
+                    <div className="text-emerald-300 font-bold mt-0.5">
+                      a_g ∝ {(gravityStrength * 0.33).toFixed(2)} c²/r_s
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* --- КОНЕЦ НОВОГО БЛОКА --- */}
+
+              {/* Ползунок напряжённости поля */}
               <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-3">
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-slate-300 font-medium">Напряжённость поля у массы</span>
