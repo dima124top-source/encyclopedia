@@ -16,7 +16,7 @@ import {
 // Ленивая подгрузка модулей лекций
 const IntroRelativityLab = lazy(() => import('./components/sandboxes/IntroRelativityLab'));
 const SchwarzschildLab = lazy(() => import('./components/sandboxes/SchwarzschildLab'));
-const KerrJetsLab = lazy(() => import('./components/sandboxes/KerrJetsLab'));
+const KerrJetsLab = lazy(() => import('./components/sandboxes/KerrJetsLabPage'));
 
 // ==========================================
 // 1. ОПРЕДЕЛЕНИЕ ТИПОВ (TypeScript Interfaces)
